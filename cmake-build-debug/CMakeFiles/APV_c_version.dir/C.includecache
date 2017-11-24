@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/doby/CLionProjects/APV-c-version/PValue.c
+PValue.h
+/Users/doby/CLionProjects/APV-c-version/PValue.h
+stdlib.h
+/Users/doby/CLionProjects/APV-c-version/stdlib.h
+stdio.h
+-
+gsl/gsl_sf_gamma.h
+-
+string.h
+-
+time.h
+-
+
+/Users/doby/CLionProjects/APV-c-version/PValue.h
+stdio.h
+/Users/doby/CLionProjects/APV-c-version/stdio.h
+stdbool.h
+-
+math.h
+-
+
+/Users/doby/CLionProjects/APV-c-version/main.c
+stdio.h
+-
+stdlib.h
+-
+PValue.h
+/Users/doby/CLionProjects/APV-c-version/PValue.h
+gsl/gsl_sf_gamma.h
+-
+

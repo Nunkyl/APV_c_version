@@ -1,0 +1,3 @@
+/Users/doby/CLionProjects/APV-c-version/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/doby/CLionProjects/APV-c-version/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/doby/CLionProjects/APV-c-version/cmake-build-debug/CMakeFiles/APV_c_version.dir
