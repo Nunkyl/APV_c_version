@@ -14,9 +14,9 @@ int main() {
     //tests[0] = {.test_index = "1", .chromosome_index = "1", .ID = "cd", .lower = 0, .upper = 3, .adjusted_p_value = 0.0};
     tests[0].test_index = "1";
     tests[0].chromosome_index = "1";
-    tests[0].ID = "cd";
+    tests[0].ID = "cd"; // r, d, a, d
     tests[0].lower = 0;
-    tests[0].upper = 2;
+    tests[0].upper = 3;
     tests[0].adjusted_p_value = 0.0;
     size_t tests_len = 1;
 
@@ -29,7 +29,7 @@ int main() {
     parameters.k = 10;
     parameters.isAdaptive = 0;
 
-    char *path = "does/not/matter/now";//
+    char *path = "does/not/matter/now";
 
     int type = 0;
 

@@ -82,12 +82,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/doby/CLionProjects/APV-c-version/CalcPValue.cpp">
-			<Option target="APV_c_version"/>
-		</Unit>
-		<Unit filename="/Users/doby/CLionProjects/APV-c-version/CalcPValue.h">
-			<Option target="APV_c_version"/>
-		</Unit>
 		<Unit filename="/Users/doby/CLionProjects/APV-c-version/PValue.c">
 			<Option target="APV_c_version"/>
 		</Unit>

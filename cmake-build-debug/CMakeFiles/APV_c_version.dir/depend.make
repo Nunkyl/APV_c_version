@@ -7,5 +7,3 @@ CMakeFiles/APV_c_version.dir/PValue.c.o: ../PValue.h
 CMakeFiles/APV_c_version.dir/main.c.o: ../PValue.h
 CMakeFiles/APV_c_version.dir/main.c.o: ../main.c
 
-CMakeFiles/APV_c_version.dir/CalcPValue.cpp.o: ../CalcPValue.cpp
-

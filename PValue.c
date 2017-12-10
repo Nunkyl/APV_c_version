@@ -8,6 +8,7 @@
 #include <gsl/gsl_sf_gamma.h>
 #include <string.h>
 #include <time.h>
+#include <stddef.h>
 //#include <gtest/gtest.h>
 //#include <gmock/gmock.h>
 /*
@@ -28,7 +29,7 @@ void test(union gen *g)
 }
 */
 void adjustPValue(TableEntry *tests, const unsigned short *A, size_t tests_len, size_t A_len, const ExecutionParameters cont, char *path, int type) { // TableEntry *tests, const unsigned short *A, size_t tests_len, size_t A_len, const ExecutionParameters cont, char *path, int type
-    srand ((int) time(NULL));
+    //srand ((int) time(NULL));
 
     unsigned short *cur_G;
     unsigned short *cur_A;
@@ -55,7 +56,7 @@ void adjustPValue(TableEntry *tests, const unsigned short *A, size_t tests_len, 
         }
         if (s == 0) tests[i].adjusted_p_value = -1;
         else tests[i].adjusted_p_value = (double)m/(double)s;
-        free (cur_A);
+        free(cur_A);
         free(cur_G);
     }
 
@@ -83,23 +84,23 @@ void prepareData(unsigned short **cur_G, unsigned short **cur_A, const unsigned 
             break;
         case eR:
             for (size_t i = 0; i < *G_len; i++) {
-                if (*cur_G[i] == 1) *cur_G[i] = 0;
-                if (*cur_G[i] == 2) *cur_G[i] = 1;
+                if ((*cur_G)[i] == 1) (*cur_G)[i] = 0;
+                if ((*cur_G)[i] == 2) (*cur_G)[i] = 1;
             }
             break;
         case eD:
             for (size_t i = 0; i < *G_len; i++) {
-                if (*cur_G[i] == 2) *cur_G[i] = 1;
+                if ((*cur_G)[i] == 2) (*cur_G)[i] = 1;
             }
             break;
         case eA:
             for (size_t i = 0; i < row_num; i++) {
                 for (size_t j = 0; j < *A_len/2; j++ ) {
-                    if (*cur_G[i*(*A_len) + j] == 1) *cur_G[i*(*A_len) + j] = 0;
-                    if (*cur_G[i*(*A_len) + j] == 2) *cur_G[i*(*A_len) + j] = 1;
+                    if ((*cur_G)[i*(*A_len) + j] == 1) (*cur_G)[i*(*A_len) + j] = 0;
+                    if ((*cur_G)[i*(*A_len) + j] == 2) (*cur_G)[i*(*A_len) + j] = 1;
                 }
                 for (size_t j = *A_len/2; j < *A_len; j++ ) {
-                    if (*cur_G[i*(*A_len) + j] == 2) *cur_G[i*(*A_len) + j] = 1;
+                    if ((*cur_G)[i*(*A_len) + j] == 2) (*cur_G)[i*(*A_len) + j] = 1;
                 }
             }
             break;
@@ -149,9 +150,39 @@ unsigned short *createGenotypeMatrix(char *path, size_t G_len, size_t lower, siz
     if (type == 0) {  // If data comes from DB
         gen = malloc (G_len * sizeof(*gen));
         if (!gen) { /* Error handling */ return NULL; }
+
         gen[0]  = 0; gen[1]  = 0; gen[2]  = 0; gen[3]  = 1; gen[4]  = 1; gen[5]  = 0;
         gen[6]  = 2; gen[7]  = 1; gen[8]  = 0; gen[9]  = 0; gen[10] = 2; gen[11] = 1;
         gen[12] = 1; gen[13] = 0; gen[14] = 0; gen[15] = 2; gen[16] = 2; gen[17] = 1;
+        gen[18] = 0; gen[19] = 0; gen[20] = 1; gen[21] = 1; gen[22] = 1; gen[23] = 0;
+
+
+        /*
+        gen[0]  = 2; gen[1]  = 2; gen[2]  = 1; gen[3]  = 0; gen[4]  = 1; gen[5]  = 2;
+        gen[6]  = 0; gen[7]  = 1; gen[8]  = 0; gen[9]  = 2; gen[10] = 2; gen[11] = 1;
+        gen[12] = 2; gen[13] = 0; gen[14] = 1; gen[15] = 0; gen[16] = 1; gen[17] = 2;
+        */
+
+        /*
+        gen[0]  = 0; gen[1]  = 3; gen[2]  = 0; gen[3]  = 1; gen[4]  = 1; gen[5]  = 2;
+        gen[6]  = 1; gen[7]  = 0; gen[8]  = 2; gen[9]  = 2; gen[10] = 1; gen[11] = 1;
+         */
+
+
+        /*
+        gen[0]  = 0; gen[1]  = 2; gen[2]  = 1; gen[3]  = 1; gen[4]  = 0; gen[5]  = 0;
+        gen[6]  = 0; gen[7]  = 2; gen[8]  = 1; gen[9]  = 0; gen[10] = 2; gen[11] = 1;
+        gen[12] = 0; gen[13] = 1; gen[14] = 1; gen[15] = 2; gen[16] = 1; gen[17] = 1;
+        */
+
+        /*
+        gen[0]  = 2; gen[1]  = 0; gen[2]  = 0; gen[3]  = 0; gen[4]  = 2; gen[5]  = 1;
+        gen[6]  = 3; gen[7]  = 0; gen[8]  = 3; gen[9]  = 1; gen[10] = 1; gen[11] = 2;
+        gen[12] = 0; gen[13] = 1; gen[14] = 2; gen[15] = 0; gen[16] = 2; gen[17] = 1;
+        gen[18] = 0; gen[19] = 1; gen[20] = 3; gen[21] = 2; gen[22] = 0; gen[23] = 0;
+         */
+
+
     }
     if (type == 1) {} // If data comes from text file
     if (type == 2) {} // If data comes from PLINK
@@ -271,7 +302,6 @@ double calculateChiSqr(const int *V, int V_rows, int V_cols){
     for (int m = 0; m < V_rows * V_cols; ++m) {
         elem_num += V[m];
     }
-
     for (int m = 0; m < V_rows; ++m) {
         row_sum = 0;
         for (int j = 0; j < V_cols; ++j) {
@@ -330,4 +360,20 @@ int calcNumElementsInGenotype(const int *V, int rowNum, int colNum){
     }
     return num_elem;
 }
+
+/*
+unsigned short * mapPhenotypeValuesToShort(const char *phn_name, size_t phn_cnt, ptrdiff_t phn_off){
+    unsigned short *new_phn;
+    vector<string> elements;
+    ptrdiff_t pos;
+    for (std::vector<string>::const_iterator it=phenotype.begin(); it!=phenotype.end(); ++it){
+        if (find(elements.begin(), elements.end(), *it) == elements.end()) {
+            elements.push_back(*it);
+        }
+        pos = find(elements.begin(), elements.end(), *it) - elements.begin();
+        new_phenotype.push_back((unsigned short)pos);
+    }
+    return new_phn;
+}
+ */
 

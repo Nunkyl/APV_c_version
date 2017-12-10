@@ -9,5 +9,5 @@ link_directories(/usr/local/Cellar/gsl) # headers
 link_libraries(/usr/local/Cellar/gsl/2.4/lib/libgsl.a)
 
 
-set(SOURCE_FILES main.c CalcPValue.cpp CalcPValue.h PValue.c PValue.h)
-add_executable(APV_c_version ${SOURCE_FILES} CalcPValue.cpp CalcPValue.h PValue.c PValue.h)
+set(SOURCE_FILES main.c PValue.c PValue.h)
+add_executable(APV_c_version ${SOURCE_FILES} PValue.c PValue.h)

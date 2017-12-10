@@ -123,33 +123,6 @@ APV_c_version/fast:
 	$(MAKE) -f CMakeFiles/APV_c_version.dir/build.make CMakeFiles/APV_c_version.dir/build
 .PHONY : APV_c_version/fast
 
-CalcPValue.o: CalcPValue.cpp.o
-
-.PHONY : CalcPValue.o
-
-# target to build an object file
-CalcPValue.cpp.o:
-	$(MAKE) -f CMakeFiles/APV_c_version.dir/build.make CMakeFiles/APV_c_version.dir/CalcPValue.cpp.o
-.PHONY : CalcPValue.cpp.o
-
-CalcPValue.i: CalcPValue.cpp.i
-
-.PHONY : CalcPValue.i
-
-# target to preprocess a source file
-CalcPValue.cpp.i:
-	$(MAKE) -f CMakeFiles/APV_c_version.dir/build.make CMakeFiles/APV_c_version.dir/CalcPValue.cpp.i
-.PHONY : CalcPValue.cpp.i
-
-CalcPValue.s: CalcPValue.cpp.s
-
-.PHONY : CalcPValue.s
-
-# target to generate assembly for a file
-CalcPValue.cpp.s:
-	$(MAKE) -f CMakeFiles/APV_c_version.dir/build.make CMakeFiles/APV_c_version.dir/CalcPValue.cpp.s
-.PHONY : CalcPValue.cpp.s
-
 PValue.o: PValue.c.o
 
 .PHONY : PValue.o
@@ -213,9 +186,6 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... APV_c_version"
-	@echo "... CalcPValue.o"
-	@echo "... CalcPValue.i"
-	@echo "... CalcPValue.s"
 	@echo "... PValue.o"
 	@echo "... PValue.i"
 	@echo "... PValue.s"
