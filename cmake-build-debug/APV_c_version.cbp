@@ -88,6 +88,12 @@
 		<Unit filename="/Users/doby/CLionProjects/APV-c-version/PValue.h">
 			<Option target="APV_c_version"/>
 		</Unit>
+		<Unit filename="/Users/doby/CLionProjects/APV-c-version/extra.c">
+			<Option target="APV_c_version"/>
+		</Unit>
+		<Unit filename="/Users/doby/CLionProjects/APV-c-version/extra.h">
+			<Option target="APV_c_version"/>
+		</Unit>
 		<Unit filename="/Users/doby/CLionProjects/APV-c-version/main.c">
 			<Option target="APV_c_version"/>
 		</Unit>

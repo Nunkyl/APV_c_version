@@ -19,6 +19,8 @@ string.h
 -
 time.h
 -
+stddef.h
+-
 
 /Users/doby/CLionProjects/APV-c-version/PValue.h
 stdio.h
@@ -27,6 +29,10 @@ stdbool.h
 -
 math.h
 -
+stdint.h
+-
+
+/Users/doby/CLionProjects/APV-c-version/extra.c
 
 /Users/doby/CLionProjects/APV-c-version/main.c
 stdio.h
@@ -36,5 +42,19 @@ stdlib.h
 PValue.h
 /Users/doby/CLionProjects/APV-c-version/PValue.h
 gsl/gsl_sf_gamma.h
+-
+PValue.h
+/Users/doby/CLionProjects/APV-c-version/PValue.h
+stdlib.h
+/Users/doby/CLionProjects/APV-c-version/stdlib.h
+stdio.h
+-
+gsl/gsl_sf_gamma.h
+-
+string.h
+-
+time.h
+-
+stddef.h
 -
 

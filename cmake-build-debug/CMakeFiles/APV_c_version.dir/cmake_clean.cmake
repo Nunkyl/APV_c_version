@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/APV_c_version.dir/main.c.o"
   "CMakeFiles/APV_c_version.dir/PValue.c.o"
+  "CMakeFiles/APV_c_version.dir/extra.c.o"
   "APV_c_version.pdb"
   "APV_c_version"
 )

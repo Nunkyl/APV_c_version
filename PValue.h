@@ -12,6 +12,7 @@
 #include "stdio.h"
 #include <stdbool.h>
 #include <math.h>
+#include <stdint.h>
 
 
 // Defines the grouping of the genotype = {"cd", "d", "r", "a"}
@@ -44,16 +45,27 @@ typedef struct ExecutionParameters {
     bool isAdaptive; // Defines whether K will be used
 } ExecutionParameters;
 
+union gen {
+    uint8_t bin;
+    struct {
+        uint8_t n0 : 2;
+        uint8_t n1 : 2;
+        uint8_t n2 : 2;
+        uint8_t n3 : 2;
+    };
+};
+
 //void adjustPValue(int type);
 void adjustPValue(TableEntry *tests, const unsigned short *A, size_t tests_len, size_t A_len, const ExecutionParameters cont, char *path, int type); // used to contain InputData &G, can be substituted by a pointer to a function
-void prepareData(unsigned short **cur_G, unsigned short **cur_A, const unsigned short *A, size_t *G_len, size_t *A_len, TableEntry cur_test, char *path, int type); // InputData & G
+void prepareData(unsigned short **cur_G, unsigned short *cur_A, const unsigned short *A, size_t G_len, size_t A_len, TableEntry cur_test, char *path, int type);
 double calcPValue(const unsigned short *cur_G, const unsigned short *cur_A, char *ID, size_t G_len, size_t A_len);
-unsigned short *createGenotypeMatrix(char *path, size_t G_len, size_t lower, size_t upper, int type);
+void createGenotypeMatrix(unsigned short *gen, char *path, size_t G_len, size_t lower, size_t upper, int type);
 bool checkNumElemInGenotype(const unsigned short *genotype, size_t G_len);
+bool checkNumElemInGenotype2(const uint8_t *genotype, size_t phn_len);
 AlternativeHypothesisType hashIt (const char *inString);
 PhenotypeStatistics calcNumElem(const unsigned short *phenotype, size_t phen_len);
-unsigned short* doubleSizeOfPhenotype(unsigned short *cur_A, size_t A_len);
-unsigned short* doubleSizeOfGenotype(unsigned short *cur_G, size_t G_len, size_t row_num);
+//unsigned short* doubleSizeOfPhenotype(unsigned short *cur_A, size_t A_len);
+//unsigned short* doubleSizeOfGenotype(unsigned short *cur_G, size_t G_len, size_t row_num);
 PhenotypeStatistics calcNumElem(const unsigned short *phenotype, size_t phen_len);
 void fillVMatrix(const unsigned short *cur_G, const unsigned short *cur_A, int *V, int V_rows, int V_cols, size_t col_num);
 double calculateChiSqr(const int *V, int V_rows, int V_cols);
