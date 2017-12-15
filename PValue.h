@@ -57,17 +57,17 @@ union gen {
 
 //void adjustPValue(int type);
 void adjustPValue(TableEntry *tests, const unsigned short *A, size_t tests_len, size_t A_len, const ExecutionParameters cont, char *path, int type); // used to contain InputData &G, can be substituted by a pointer to a function
-void prepareData(unsigned short **cur_G, unsigned short *cur_A, const unsigned short *A, size_t G_len, size_t A_len, TableEntry cur_test, char *path, int type);
-double calcPValue(const unsigned short *cur_G, const unsigned short *cur_A, char *ID, size_t G_len, size_t A_len);
-void createGenotypeMatrix(unsigned short *gen, char *path, size_t G_len, size_t lower, size_t upper, int type);
-bool checkNumElemInGenotype(const unsigned short *genotype, size_t G_len);
+void prepareData(uint8_t **cur_G, unsigned short *cur_A, const unsigned short *A, size_t G_len, size_t A_len, TableEntry cur_test, char *path, int type);
+double calcPValue(const uint8_t *cur_G, const unsigned short *cur_A, size_t G_len, size_t A_len);
+void createGenotypeMatrix(uint8_t *genotype, char *path, size_t G_len, size_t lower, size_t upper, int type);
+bool checkNumElemInGenotype(const uint8_t *genotype, size_t phn_len);
 bool checkNumElemInGenotype2(const uint8_t *genotype, size_t phn_len);
 AlternativeHypothesisType hashIt (const char *inString);
 PhenotypeStatistics calcNumElem(const unsigned short *phenotype, size_t phen_len);
 //unsigned short* doubleSizeOfPhenotype(unsigned short *cur_A, size_t A_len);
 //unsigned short* doubleSizeOfGenotype(unsigned short *cur_G, size_t G_len, size_t row_num);
 PhenotypeStatistics calcNumElem(const unsigned short *phenotype, size_t phen_len);
-void fillVMatrix(const unsigned short *cur_G, const unsigned short *cur_A, int *V, int V_rows, int V_cols, size_t col_num);
+void fillVMatrix(const uint8_t *cur_G, const unsigned short *cur_A, int *V, int V_rows, int V_cols, size_t col_num);
 double calculateChiSqr(const int *V, int V_rows, int V_cols);
 void phenotypeRandomPermutation(unsigned short *phenotype, size_t phenotypeLength);
 int calcNumElementsInGenotype(const int *V, int rowNum, int colNum); // maybe 2d array

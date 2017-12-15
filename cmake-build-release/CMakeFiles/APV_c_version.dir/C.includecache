@@ -41,6 +41,14 @@ PValue.h
 /Users/doby/CLionProjects/APV-c-version/PValue.h
 gsl/gsl_sf_gamma.h
 -
+PValue.h
+/Users/doby/CLionProjects/APV-c-version/PValue.h
+stdlib.h
+/Users/doby/CLionProjects/APV-c-version/stdlib.h
+stdio.h
+-
+gsl/gsl_sf_gamma.h
+-
 string.h
 -
 time.h

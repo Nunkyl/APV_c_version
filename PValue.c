@@ -9,28 +9,16 @@
 #include <string.h>
 #include <time.h>
 #include <stddef.h>
-//#include <gtest/gtest.h>
-//#include <gmock/gmock.h>
-
-
-
-/*
-void test(union gen *g)
-{
-    g.n0;
-
-}
-*/
 
 
 void adjustPValue(TableEntry *tests, const unsigned short *A, size_t tests_len, size_t A_len, const ExecutionParameters cont, char *path, int type) { // TableEntry *tests, const unsigned short *A, size_t tests_len, size_t A_len, const ExecutionParameters cont, char *path, int type
     //srand ((int) time(NULL));
 
-    unsigned short *cur_G;
+    uint8_t *cur_G;
     unsigned short *cur_A;
     double D_main = 0.0, D_cur = 0.0;
     int s, m, k, all_iter;
-    size_t cur_G_len, cur_A_len, G_len = A_len * (tests->upper - tests->lower + 1);
+    size_t cur_G_len, cur_A_len, G_len = (A_len+3)/4 * (tests->upper - tests->lower + 1); // G_len - size in bytes
     if (tests->ID == "a"){
         cur_G_len = 2 * G_len;
         cur_A_len = 2 * A_len;
@@ -39,7 +27,6 @@ void adjustPValue(TableEntry *tests, const unsigned short *A, size_t tests_len, 
         cur_G_len = G_len;
         cur_A_len = A_len;
     }
-
 
     if (cont.isAdaptive) k = cont.k;
     else k = cont.maxReplications;
@@ -50,12 +37,12 @@ void adjustPValue(TableEntry *tests, const unsigned short *A, size_t tests_len, 
         cur_G = malloc (2 * G_len * sizeof(*cur_G));
         cur_A = malloc (2 * A_len * sizeof(*cur_A));
         prepareData(&cur_G, cur_A, A, cur_G_len, cur_A_len, tests[i], path, type);
-        D_main = calcPValue(cur_G, cur_A, tests[i].ID, cur_G_len, cur_A_len);
+        D_main = calcPValue(cur_G, cur_A, cur_G_len, cur_A_len);
         s = 0; m = 0; all_iter = 0;
         while (s < cont.maxReplications && m < k && all_iter < cont.maxReplications){
             all_iter++;
             phenotypeRandomPermutation(cur_A, cur_A_len);
-            D_cur = calcPValue(cur_G, cur_A, tests[i].ID, cur_G_len, cur_A_len);
+            D_cur = calcPValue(cur_G, cur_A, cur_G_len, cur_A_len);
             if (isnan(D_cur)) continue; // If D_cur is NaN go to the next iteration ((D_cur != D_cur))
             s++;
             if (D_cur > D_main) m++;
@@ -68,42 +55,53 @@ void adjustPValue(TableEntry *tests, const unsigned short *A, size_t tests_len, 
 
 }
 
-void prepareData(unsigned short **cur_G, unsigned short *cur_A, const unsigned short *A, size_t G_len, size_t A_len, TableEntry cur_test, char *path, int type){
-    // Check if phenotype/genotype are empty   ?????
+void prepareData(uint8_t **cur_G, unsigned short *cur_A, const unsigned short *A, size_t G_len, size_t A_len, TableEntry cur_test, char *path, int type){
+
+    union gen cur_gen;
+    unsigned short bits[4];
+
     size_t row_num = cur_test.upper - cur_test.lower + 1;
     createGenotypeMatrix(*cur_G, path, G_len, cur_test.lower, cur_test.upper, type); // Read the appropriate part of the genotype
 
-    //*cur_A = malloc(*A_len * sizeof(**cur_A)); //?
-    //if (!*cur_A) { /* Error handling */ }
     memcpy(cur_A, A, A_len * sizeof(cur_A));
 
-    if (hashIt(cur_test.ID) == eA){
+    if (cur_test.ID == "a"){
         memcpy(cur_A + A_len/2, cur_A, A_len/2);
-        unsigned short *buf_G =  malloc(G_len * sizeof(*buf_G));
-        if (!buf_G) {  }
-        size_t col_num = G_len/row_num;
-        size_t row_len = col_num * sizeof(*cur_G);
+        uint8_t *buf_G =  malloc(G_len * sizeof(*buf_G)); // G_len = row_num * A_len
+        if (!buf_G) { }
+
+        size_t row_len = (A_len + 3)/4;
         for (size_t i = 0; i < row_num; i++){
-            memcpy(buf_G + col_num*i*2, cur_G + col_num*i, row_len);
-            memcpy(buf_G + col_num*(i*2+1), cur_G + col_num*i, row_len);
+            memcpy(buf_G + row_len*i*2, cur_G + row_len*i, row_len);
+            memcpy(buf_G + row_len*(i*2+1), cur_G + row_len*i, row_len);
         }
         free(*cur_G);
         *cur_G = buf_G;
     }
 
-
-    switch (hashIt(cur_test.ID)) { // Adjust the values of the genotype
+    // Adjust the values of the genotype
+    switch (hashIt(cur_test.ID)) {
         case eCD:
             break;
         case eR:
             for (size_t i = 0; i < G_len; i++) {
-                if ((*cur_G)[i] == 1) (*cur_G)[i] = 0;
-                if ((*cur_G)[i] == 2) (*cur_G)[i] = 1;
+                cur_gen.bin = (*cur_G)[i];
+                bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
+                for(size_t j = 0; j < 4; j++) {
+                    if (bits[j] == 1) bits[j] = 0;
+                    if (bits[j] == 2) bits[j] = 1;
+                }
+                (*cur_G)[i] = cur_gen.bin;
             }
             break;
         case eD:
             for (size_t i = 0; i < G_len; i++) {
-                if ((*cur_G)[i] == 2) (*cur_G)[i] = 1;
+                cur_gen.bin = (*cur_G)[i];
+                bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
+                for(size_t j = 0; j < 4; j++) {
+                    if (bits[j] == 2) bits[j] = 1;
+                }
+                (*cur_G)[i] = cur_gen.bin;
             }
             break;
         case eA:
@@ -116,11 +114,33 @@ void prepareData(unsigned short **cur_G, unsigned short *cur_A, const unsigned s
                     if ((*cur_G)[i*A_len + j] == 2) (*cur_G)[i*A_len + j] = 1;
                 }
             }
+
+            size_t row_len = (A_len + 3)/4; // A_len = full length of one line in genotype matrix
+            for (size_t i = 0; i < row_num; i++){
+                for (size_t j = 0; j < row_len/2; j++ ) {
+                    cur_gen.bin = (*cur_G)[i*row_len + j];
+                    bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
+                    for(size_t l = 0; l < 4; l++) {
+                        if (bits[j] == 1) bits[j] = 0;
+                        if (bits[j] == 2) bits[j] = 1;
+                    }
+                    (*cur_G)[i*row_len + j] = cur_gen.bin;
+                }
+                for (size_t j = row_len/2; j < row_len; j++ ){
+                    cur_gen.bin = (*cur_G)[i*row_len + j];
+                    bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
+                    for(size_t l = 0; l < 4; l++) {
+                        if (bits[j] == 2) bits[j] = 1;
+                    }
+                    (*cur_G)[i*row_len + j] = cur_gen.bin;
+                }
+            }
+
             break;
     }
 }
 
-double calcPValue(const unsigned short *cur_G, const unsigned short *cur_A, char *ID, size_t G_len, size_t A_len){
+double calcPValue(const uint8_t *cur_G, const unsigned short *cur_A, size_t G_len, size_t A_len){
 
     double D = 0.0;     // Return value
     int D_num = 0;      // Amount of valid D values
@@ -128,8 +148,9 @@ double calcPValue(const unsigned short *cur_G, const unsigned short *cur_A, char
     int G_car;          // The cardinality of the sets of values of the phenotype and genotype
     int s;              // Parameters for calculating the gamma function
     double chi_sqr = 0.0;
-    size_t row_num = G_len/A_len; // The amount of rows in the current genotype matrix
+    size_t row_num = G_len/((A_len+3)/4); // The amount of rows in the current genotype matrix
     PhenotypeStatistics phen_stat;
+    size_t row_len_bytes = (A_len + 3)/4;
 
     size_t snp_len = (A_len + 3)/4;// Length of line in genotype matrix
 
@@ -142,8 +163,8 @@ double calcPValue(const unsigned short *cur_G, const unsigned short *cur_A, char
 
     for (int i = 0; i < row_num; ++i) {
 
-        if (!checkNumElemInGenotype(cur_G + i*A_len, A_len)) continue;
-        fillVMatrix(cur_G + i*A_len, cur_A, V, 4, (phen_stat.max_element+1), A_len);
+        if (!checkNumElemInGenotype(cur_G + i*(A_len+3)/4, A_len)) continue;
+        fillVMatrix(cur_G + i*row_len_bytes,  cur_A, V, 4, (phen_stat.max_element+1), A_len);
         G_car = calcNumElementsInGenotype(V, 4, (phen_stat.max_element+1)); // Check this!
 
         // Calculate s and X^2
@@ -160,16 +181,39 @@ double calcPValue(const unsigned short *cur_G, const unsigned short *cur_A, char
     return D;
 }
 
-void createGenotypeMatrix(unsigned short *gen, char *path, size_t G_len, size_t lower, size_t upper, int type){
+void createGenotypeMatrix(uint8_t *genotype, char *path, size_t G_len, size_t lower, size_t upper, int type){
     if (type == 0) {  // If data comes from DB
         //gen = malloc (G_len * sizeof(*gen));
         //if (!gen) { /* Error handling */ return NULL; }
 
+        union gen gen;
+        gen.n0 = 0; gen.n1 = 0; gen.n2 = 0; gen.n3 = 1;
+        genotype[0] = gen.bin;
+        gen.n0 = 1; gen.n1 = 0; gen.n2 = 0; gen.n3 = 0;
+        genotype[1] = gen.bin;
+
+        gen.n0 = 2; gen.n1 = 1; gen.n2 = 0; gen.n3 = 0;
+        genotype[2] = gen.bin;
+        gen.n0 = 2; gen.n1 = 1; gen.n2 = 0; gen.n3 = 0;
+        genotype[3] = gen.bin;
+
+        gen.n0 = 1; gen.n1 = 0; gen.n2 = 0; gen.n3 = 2;
+        genotype[4] = gen.bin;
+        gen.n0 = 2; gen.n1 = 1; gen.n2 = 0; gen.n3 = 0;
+        genotype[5] = gen.bin;
+
+        gen.n0 = 0; gen.n1 = 0; gen.n2 = 1; gen.n3 = 1;
+        genotype[6] = gen.bin;
+        gen.n0 = 1; gen.n1 = 0; gen.n2 = 0; gen.n3 = 0;
+        genotype[7] = gen.bin;
+
+
+        /*
         gen[0]  = 0; gen[1]  = 0; gen[2]  = 0; gen[3]  = 1; gen[4]  = 1; gen[5]  = 0;
         gen[6]  = 2; gen[7]  = 1; gen[8]  = 0; gen[9]  = 0; gen[10] = 2; gen[11] = 1;
         gen[12] = 1; gen[13] = 0; gen[14] = 0; gen[15] = 2; gen[16] = 2; gen[17] = 1;
         gen[18] = 0; gen[19] = 0; gen[20] = 1; gen[21] = 1; gen[22] = 1; gen[23] = 0;
-
+        */
 
         /*
         gen[0]  = 2; gen[1]  = 2; gen[2]  = 1; gen[3]  = 0; gen[4]  = 1; gen[5]  = 2;
@@ -203,26 +247,27 @@ void createGenotypeMatrix(unsigned short *gen, char *path, size_t G_len, size_t 
     //return gen;
 }
 
-bool checkNumElemInGenotype(const unsigned short *genotype, size_t G_len) {
+bool checkNumElemInGenotype(const uint8_t *genotype, size_t phn_len) {
     unsigned short p = 3;
     size_t elements_size = 4;
-    //unsigned short elements[4];
-    unsigned short *elements = malloc(elements_size * sizeof(*elements));
-    if (!elements) { /* Error handling */ return NULL; }
+    unsigned short elements[4] = {0};
+    unsigned short bits[4];
     int count = 0;
-    bool flag = 0;
+    union gen cur_gen;
+    int bits_num = 4;
 
-    for (size_t j = 0; j < G_len; ++j) {
-        if (genotype[j] != p) {
-            flag = 0;
-            for (int i = 0; i < count; ++i) {
-                if (elements[i] == genotype[j]) {flag = 1; break;}
-            }
-            if (!flag) {
-                elements[count] = genotype[j];
-                count++;
-                if (count == 2) {
-                    return 1;
+    for (size_t j = 0; j < (phn_len + 3)/4; ++j) {
+        cur_gen.bin = genotype[j];
+        bits[0] = cur_gen.n0, bits[1] = cur_gen.n1, bits[2] = cur_gen.n2, bits[3] = cur_gen.n3;
+        if(j == (phn_len + 3)/4 - 1  && phn_len%4 != 0) bits_num = phn_len%4;
+        for (int i = 0; i < bits_num; i++) {
+            if (bits[i] != p) {
+                if (elements[bits[i]] == 0) {
+                    elements[bits[i]]++;
+                    count++;
+                    if (count == 2) {
+                        return 1;
+                    }
                 }
             }
         }
@@ -323,15 +368,23 @@ unsigned short * doubleSizeOfGenotype(unsigned short *cur_G, size_t G_len, size_
 */
 
 
-void fillVMatrix(const unsigned short *cur_G, const unsigned short *cur_A, int *V, int V_rows, int V_cols, size_t col_num){  // col_num - The amount of patients
+void fillVMatrix(const uint8_t *cur_G, const unsigned short *cur_A, int *V, int V_rows, int V_cols, size_t col_num){  // col_num - The amount of patients
+
+    union gen cur_gen;
+    uint8_t bits[4];
+    int bits_num = 4;
 
     // Fill V with zeros
-    for(int m = 0; m < V_rows * V_cols; m++) {
-        V[m] = 0;
-    }
+    memset (V,0,V_rows * V_cols * sizeof(*V));
+
     // Fill V (G_car x A_car)
-    for(int j = 0; j < col_num; j++) {
-        V[cur_G[j] * V_cols + cur_A[j]]++;// = V[cur_G[j] * V_cols + cur_A[j]] + 1;
+    for (size_t j = 0; j < (col_num + 3)/4; ++j) {
+        cur_gen.bin = cur_G[j]; // uint8_t a = cur_G[j];
+        bits[0] = cur_gen.n0, bits[1] = cur_gen.n1, bits[2] = cur_gen.n2, bits[3] = cur_gen.n3;
+        if(j == (col_num + 3)/4 - 1 && col_num%4 != 0) bits_num = col_num%4;
+        for (int i = 0; i < bits_num; i++) {
+            V[bits[i] * V_cols + cur_A[j*4 + i]]++; // bits => a & 3; a >>= 2
+        }
     }
 }
 
@@ -406,4 +459,35 @@ int calcNumElementsInGenotype(const int *V, int rowNum, int colNum){
 }
 
 
+unsigned short * mapPhenotypeValuesToShort(const char *phn_name, size_t phn_cnt, ptrdiff_t phn_off){
+    unsigned short *new_phn = malloc(phn_cnt *sizeof(*new_phn));
+    if (!new_phn) { /* Error handling */  }
+    size_t elements_cnt = 20, cur_num_elem = 0;
+    char *elements = malloc(elements_cnt * phn_off * sizeof(*elements));
+    if (!elements) { /* Error handling */  }
+    bool flag = false;
 
+    for(size_t i = 0; i < phn_cnt; i++){
+        flag = false;
+        for(size_t j = 0; j < cur_num_elem; j++){
+            if(strncmp(phn_name + i*phn_off, elements + j*phn_off, phn_off) == 0){
+                new_phn[i] = (unsigned short)j;
+                flag = true;
+            }
+        }
+        if(!flag){
+            // Add memory if required
+            if(cur_num_elem == elements_cnt){
+                elements_cnt *= 2;
+                realloc(elements, elements_cnt * sizeof(*elements));
+                if (!elements) { /* Error handling */  }
+            }
+
+            strncpy(elements + cur_num_elem*phn_off, phn_name + i*phn_off, phn_off);
+            new_phn[i] = (unsigned short)cur_num_elem;
+            cur_num_elem++;
+        }
+    }
+    free(elements);
+    return new_phn;
+}
