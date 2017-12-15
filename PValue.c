@@ -79,6 +79,7 @@ void prepareData(uint8_t **cur_G, unsigned short *cur_A, const unsigned short *A
         *cur_G = buf_G;
     }
 
+    size_t row_len = (A_len + 3)/4; // A_len = full length of one line in genotype matrix
     // Adjust the values of the genotype
     switch (hashIt(cur_test.ID)) {
         case eCD:
@@ -86,52 +87,60 @@ void prepareData(uint8_t **cur_G, unsigned short *cur_A, const unsigned short *A
         case eR:
             for (size_t i = 0; i < G_len; i++) {
                 cur_gen.bin = (*cur_G)[i];
-                bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
+                /*bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
                 for(size_t j = 0; j < 4; j++) {
                     if (bits[j] == 1) bits[j] = 0;
                     if (bits[j] == 2) bits[j] = 1;
-                }
+                }*/
+                if(cur_gen.n0 == 1) cur_gen.n0 = 0;
+                if(cur_gen.n1 == 1) cur_gen.n1 = 0;
+                if(cur_gen.n2 == 1) cur_gen.n2 = 0;
+                if(cur_gen.n3 == 1) cur_gen.n3 = 0;
+
+                if(cur_gen.n0 == 2) cur_gen.n0 = 1;
+                if(cur_gen.n1 == 2) cur_gen.n1 = 1;
+                if(cur_gen.n2 == 2) cur_gen.n2 = 1;
+                if(cur_gen.n3 == 2) cur_gen.n3 = 1;
+
                 (*cur_G)[i] = cur_gen.bin;
             }
             break;
         case eD:
             for (size_t i = 0; i < G_len; i++) {
                 cur_gen.bin = (*cur_G)[i];
-                bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
+                /*bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
                 for(size_t j = 0; j < 4; j++) {
                     if (bits[j] == 2) bits[j] = 1;
-                }
+                }*/
+
+                if(cur_gen.n0 == 2) {cur_gen.n0 = 1;}
+                if(cur_gen.n1 == 2) {cur_gen.n1 = 1;}
+                if(cur_gen.n2 == 2) {cur_gen.n2 = 1;}
+                if(cur_gen.n3 == 2) {cur_gen.n3 = 1;}
                 (*cur_G)[i] = cur_gen.bin;
             }
             break;
         case eA:
-            for (size_t i = 0; i < row_num; i++) {
-                for (size_t j = 0; j < A_len/2; j++ ) {
-                    if ((*cur_G)[i*A_len + j] == 1) (*cur_G)[i*A_len + j] = 0;
-                    if ((*cur_G)[i*A_len + j] == 2) (*cur_G)[i*A_len + j] = 1;
-                }
-                for (size_t j = A_len/2; j < A_len; j++ ) {
-                    if ((*cur_G)[i*A_len + j] == 2) (*cur_G)[i*A_len + j] = 1;
-                }
-            }
-
-            size_t row_len = (A_len + 3)/4; // A_len = full length of one line in genotype matrix
             for (size_t i = 0; i < row_num; i++){
                 for (size_t j = 0; j < row_len/2; j++ ) {
                     cur_gen.bin = (*cur_G)[i*row_len + j];
-                    bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
-                    for(size_t l = 0; l < 4; l++) {
-                        if (bits[j] == 1) bits[j] = 0;
-                        if (bits[j] == 2) bits[j] = 1;
-                    }
+                    if(cur_gen.n0 == 1) cur_gen.n0 = 0;
+                    if(cur_gen.n1 == 1) cur_gen.n1 = 0;
+                    if(cur_gen.n2 == 1) cur_gen.n2 = 0;
+                    if(cur_gen.n3 == 1) cur_gen.n3 = 0;
+
+                    if(cur_gen.n0 == 2) cur_gen.n0 = 1;
+                    if(cur_gen.n1 == 2) cur_gen.n1 = 1;
+                    if(cur_gen.n2 == 2) cur_gen.n2 = 1;
+                    if(cur_gen.n3 == 2) cur_gen.n3 = 1;
                     (*cur_G)[i*row_len + j] = cur_gen.bin;
                 }
                 for (size_t j = row_len/2; j < row_len; j++ ){
                     cur_gen.bin = (*cur_G)[i*row_len + j];
-                    bits[0] = cur_gen.n0; bits[1] = cur_gen.n1; bits[2] = cur_gen.n2; bits[3] = cur_gen.n3;
-                    for(size_t l = 0; l < 4; l++) {
-                        if (bits[j] == 2) bits[j] = 1;
-                    }
+                    if(cur_gen.n0 == 2) cur_gen.n0 = 1;
+                    if(cur_gen.n1 == 2) cur_gen.n1 = 1;
+                    if(cur_gen.n2 == 2) cur_gen.n2 = 1;
+                    if(cur_gen.n3 == 2) cur_gen.n3 = 1;
                     (*cur_G)[i*row_len + j] = cur_gen.bin;
                 }
             }
@@ -183,9 +192,8 @@ double calcPValue(const uint8_t *cur_G, const unsigned short *cur_A, size_t G_le
 
 void createGenotypeMatrix(uint8_t *genotype, char *path, size_t G_len, size_t lower, size_t upper, int type){
     if (type == 0) {  // If data comes from DB
-        //gen = malloc (G_len * sizeof(*gen));
-        //if (!gen) { /* Error handling */ return NULL; }
 
+        /*
         union gen gen;
         gen.n0 = 0; gen.n1 = 0; gen.n2 = 0; gen.n3 = 1;
         genotype[0] = gen.bin;
@@ -206,41 +214,77 @@ void createGenotypeMatrix(uint8_t *genotype, char *path, size_t G_len, size_t lo
         genotype[6] = gen.bin;
         gen.n0 = 1; gen.n1 = 0; gen.n2 = 0; gen.n3 = 0;
         genotype[7] = gen.bin;
-
-
-        /*
-        gen[0]  = 0; gen[1]  = 0; gen[2]  = 0; gen[3]  = 1; gen[4]  = 1; gen[5]  = 0;
-        gen[6]  = 2; gen[7]  = 1; gen[8]  = 0; gen[9]  = 0; gen[10] = 2; gen[11] = 1;
-        gen[12] = 1; gen[13] = 0; gen[14] = 0; gen[15] = 2; gen[16] = 2; gen[17] = 1;
-        gen[18] = 0; gen[19] = 0; gen[20] = 1; gen[21] = 1; gen[22] = 1; gen[23] = 0;
         */
 
         /*
-        gen[0]  = 2; gen[1]  = 2; gen[2]  = 1; gen[3]  = 0; gen[4]  = 1; gen[5]  = 2;
-        gen[6]  = 0; gen[7]  = 1; gen[8]  = 0; gen[9]  = 2; gen[10] = 2; gen[11] = 1;
-        gen[12] = 2; gen[13] = 0; gen[14] = 1; gen[15] = 0; gen[16] = 1; gen[17] = 2;
+        union gen gen;
+        gen.n0 = 2; gen.n1 = 2; gen.n2 = 1; gen.n3 = 0;
+        genotype[0] = gen.bin;
+        gen.n0 = 1; gen.n1 = 2; gen.n2 = 0; gen.n3 = 0;
+        genotype[1] = gen.bin;
+
+        gen.n0 = 0; gen.n1 = 1; gen.n2 = 0; gen.n3 = 2;
+        genotype[2] = gen.bin;
+        gen.n0 = 2; gen.n1 = 1; gen.n2 = 0; gen.n3 = 0;
+        genotype[3] = gen.bin;
+
+        gen.n0 = 2; gen.n1 = 0; gen.n2 = 1; gen.n3 = 0;
+        genotype[4] = gen.bin;
+        gen.n0 = 1; gen.n1 = 2; gen.n2 = 0; gen.n3 = 0;
+        genotype[5] = gen.bin;
         */
 
         /*
-        gen[0]  = 0; gen[1]  = 3; gen[2]  = 0; gen[3]  = 1; gen[4]  = 1; gen[5]  = 2;
-        gen[6]  = 1; gen[7]  = 0; gen[8]  = 2; gen[9]  = 2; gen[10] = 1; gen[11] = 1;
+        union gen gen;
+        gen.n0 = 0; gen.n1 = 3; gen.n2 = 0; gen.n3 = 1;
+        genotype[0] = gen.bin;
+        gen.n0 = 1; gen.n1 = 2; gen.n2 = 0; gen.n3 = 0;
+        genotype[1] = gen.bin;
+
+        gen.n0 = 1; gen.n1 = 0; gen.n2 = 2; gen.n3 = 2;
+        genotype[2] = gen.bin;
+        gen.n0 = 1; gen.n1 = 1; gen.n2 = 0; gen.n3 = 0;
+        genotype[3] = gen.bin;
+        */
+
+        union gen gen;
+        gen.n0 = 0; gen.n1 = 2; gen.n2 = 1; gen.n3 = 1;
+        genotype[0] = gen.bin;
+        gen.n0 = 0; gen.n1 = 0; gen.n2 = 0; gen.n3 = 0;
+        genotype[1] = gen.bin;
+
+        gen.n0 = 0; gen.n1 = 2; gen.n2 = 1; gen.n3 = 0;
+        genotype[2] = gen.bin;
+        gen.n0 = 2; gen.n1 = 1; gen.n2 = 0; gen.n3 = 0;
+        genotype[3] = gen.bin;
+
+        gen.n0 = 0; gen.n1 = 1; gen.n2 = 1; gen.n3 = 2;
+        genotype[4] = gen.bin;
+        gen.n0 = 1; gen.n1 = 1; gen.n2 = 0; gen.n3 = 0;
+        genotype[5] = gen.bin;
+
+        /*
+        union gen gen;
+        gen.n0 = 2; gen.n1 = 0; gen.n2 = 0; gen.n3 = 0;
+        genotype[0] = gen.bin;
+        gen.n0 = 2; gen.n1 = 1; gen.n2 = 0; gen.n3 = 0;
+        genotype[1] = gen.bin;
+
+        gen.n0 = 3; gen.n1 = 0; gen.n2 = 3; gen.n3 = 1;
+        genotype[2] = gen.bin;
+        gen.n0 = 1; gen.n1 = 2; gen.n2 = 0; gen.n3 = 0;
+        genotype[3] = gen.bin;
+
+        gen.n0 = 0; gen.n1 = 1; gen.n2 = 2; gen.n3 = 0;
+        genotype[4] = gen.bin;
+        gen.n0 = 2; gen.n1 = 1; gen.n2 = 0; gen.n3 = 0;
+        genotype[5] = gen.bin;
+
+        gen.n0 = 0; gen.n1 = 1; gen.n2 = 3; gen.n3 = 2;
+        genotype[6] = gen.bin;
+        gen.n0 = 0; gen.n1 = 0; gen.n2 = 0; gen.n3 = 0;
+        genotype[7] = gen.bin;
          */
-
-
-        /*
-        gen[0]  = 0; gen[1]  = 2; gen[2]  = 1; gen[3]  = 1; gen[4]  = 0; gen[5]  = 0;
-        gen[6]  = 0; gen[7]  = 2; gen[8]  = 1; gen[9]  = 0; gen[10] = 2; gen[11] = 1;
-        gen[12] = 0; gen[13] = 1; gen[14] = 1; gen[15] = 2; gen[16] = 1; gen[17] = 1;
-        */
-
-        /*
-        gen[0]  = 2; gen[1]  = 0; gen[2]  = 0; gen[3]  = 0; gen[4]  = 2; gen[5]  = 1;
-        gen[6]  = 3; gen[7]  = 0; gen[8]  = 3; gen[9]  = 1; gen[10] = 1; gen[11] = 2;
-        gen[12] = 0; gen[13] = 1; gen[14] = 2; gen[15] = 0; gen[16] = 2; gen[17] = 1;
-        gen[18] = 0; gen[19] = 1; gen[20] = 3; gen[21] = 2; gen[22] = 0; gen[23] = 0;
-         */
-
-
     }
     if (type == 1) {} // If data comes from text file
     if (type == 2) {} // If data comes from PLINK
